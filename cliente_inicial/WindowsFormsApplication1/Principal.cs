@@ -13,8 +13,8 @@ namespace WindowsFormsApplication1
 {
     public partial class Principal : Form
     {
-        string IP = "192.168.25.133";
-        int puerto = 9100;
+        string IP = "192.168.25.141";
+        int puerto = 9230;
         Socket server;
         bool registrado;
         int cont = 0;
