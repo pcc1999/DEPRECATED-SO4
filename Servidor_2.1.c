@@ -20,16 +20,39 @@ typedef struct{
 
 TLista lista;
 
-int AddUsuario(char user[20], int socket)
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+int AddUsuario(char user[20], int *socket)
 {
-	if (lista.num < 100)
+	int i;
+	int YaIntroducido = 0;
+	for (i = 0; i < lista.num; i++)
 	{
-		strcpy(lista.usuarios[lista.num].usuario, user);
-		lista.usuarios[lista.num].socket = socket;
-		lista.num = lista.num + 1;
-		return 0;
+		if (strcmp(lista.usuarios[i].usuario, user)==0)
+		{
+			YaIntroducido = 1;
+		}
 	}
-	else 
+	if (!YaIntroducido)
+	{
+		if (lista.num < 100)
+		{
+			//7pthread_mutex_lock(&mutex);
+			
+			strcpy(lista.usuarios[lista.num].usuario, user);
+			lista.usuarios[lista.num].socket = *socket;
+			lista.num = lista.num + 1;
+			return 0;
+			
+			//pthread_mutex_unlock(&mutex);
+		}
+		
+		else 
+		{
+			return -1;
+		}
+	}
+	else
 	{
 		return -1;
 	}
@@ -48,11 +71,15 @@ void BorrarUsuario(char nombre[20])
 	}
 	if(encontrado)
 	{
+		//pthread_mutex_lock(&mutex);
+		
 		for(i; i < lista.num; i++)
 		{
 			lista.usuarios[i]=lista.usuarios[i+1];
 		}
 		lista.num = lista.num - 1;
+		
+		//pthread_mutex_unlock(&mutex);
 	}
 }
 
@@ -208,11 +235,19 @@ void *AtenderCliente(void *socket)
 				{	
 					if (strcmp(row[2], password)==0)
 					{
-						strcpy(respuesta, "correcto");
-						encontrado = 1;
-						printf("El usuario %s ha iniciado sesion correctamente\n", nombre);
-						//añadir usuario a lista usuarios
-						AddUsuario(nombre, socket);
+						int hapodido = AddUsuario(nombre, socket);
+						if (hapodido == 0)
+						{
+							strcpy(respuesta, "correcto");
+							encontrado = 1;
+							printf("El usuario %s ha iniciado sesion correctamente\n", nombre);
+							//añadir usuario a lista usuarios
+						}
+						else
+						{
+							printf("Ya esta conectado");
+							strcpy(respuesta, "conectado");
+						}
 					}
 					else if (strcmp(row[2], password)!=0)
 					{
@@ -340,11 +375,17 @@ void *AtenderCliente(void *socket)
 			int i;
 			for(i = 0; i < lista.num; i++)
 			{
+				printf("Nombre del usuario en la posicion %d: %s. Su socket: %d\n", lista.num, lista.usuarios[i].usuario, &lista.usuarios[i].socket);
 				strcat(listausuarios, ("%s", lista.usuarios[i].usuario));
+				strcat(listausuarios, "_");
+
+				char socket_usuario[100];
+				sprintf(socket_usuario, "%d", &lista.usuarios[i].socket);
+				strcat(listausuarios, socket_usuario);
 				strcat(listausuarios, "_");
 			}
 			strcat(listausuarios, "0");
-			printf(listausuarios);
+			printf("%s\n", listausuarios);
 			write (sock_conn, listausuarios, strlen(listausuarios));
 		}
 		if(consulta == 5)
@@ -354,6 +395,25 @@ void *AtenderCliente(void *socket)
 			sprintf(nombre, p);
 			BorrarUsuario(nombre);
 			terminar = 1;
+		}
+
+		if(consulta == 7)
+		{
+			char nombre[20];
+			p = strtok(NULL, "/");
+			sprintf(nombre, p);
+			int j;
+			int encontrado6 = 0;
+			for (j = 0; j < lista.num && !encontrado6; j++)
+			{
+				if (strcmp(lista.usuarios[j].usuario, nombre) == 0)
+				{
+					sprintf(respuesta, "%d", &lista.usuarios[j].socket);
+					printf("Encontrado!\n");
+					encontrado6 = 1;
+				}
+			}
+			write (sock_conn, respuesta, strlen(respuesta));
 		}
 		close(sock_conn);
 	}
@@ -381,10 +441,10 @@ int main(int argc, char *argv[])
 	// htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 9230
-	serv_adr.sin_port = htons(9230);
+	serv_adr.sin_port = htons(9020);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 	{
-		printf ("Error al bind");
+		printf ("Error al bind\n");
 	}
 	//La cola de peticiones pendientes no podr? ser superior a 4
 	if (listen(sock_listen, 2) < 0)
