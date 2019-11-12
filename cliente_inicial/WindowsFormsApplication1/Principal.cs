@@ -17,11 +17,11 @@ namespace WindowsFormsApplication1
 //PARAMETROS FORM E INICIALIZACION
 
         string IP = "192.168.25.144";
-        int puerto = 9230;
+        int puerto = 9020;
         Socket server;
         bool registrado;
         int cont = 0;
-        string nombre;
+        public Usuario user = new Usuario();
         public Principal()
         {
             InitializeComponent();
@@ -40,7 +40,6 @@ namespace WindowsFormsApplication1
                 Conectar(ipep);
 
                 //Preparamos el mensaje que vamos a enviar
-                this.nombre = usuario.Text;
                 string mensaje = "0/" + usuario.Text + "/" + password.Text;
 
                 //Enviamos nuestra consulta y recibimos del servidor la respuesta
@@ -51,8 +50,23 @@ namespace WindowsFormsApplication1
                     MessageBox.Show("Credenciales correctas");
                     this.BackColor = Color.Green;
                     registrado = true;
+                    this.user.nombre = usuario.Text;
+                    mensaje = "7/" + this.user.nombre;
+
+                    //Preparamos el IPEndPoint y nos conectamos al socket
+                    IPEndPoint ipep2 = PrepararIPEndPoint();
+
+                    //Intentamos conectarnos al servidor
+                    Conectar(ipep2);
+
+                    string socket_usuario = EnviarYRecibir(mensaje);
+                    this.user.socket = Convert.ToInt32(socket_usuario);
                     usuario.Text = "";
                     password.Text = "";
+                }
+                else if (respuesta == "conectado")
+                {
+                    MessageBox.Show("Ya estás conectado al servidor");
                 }
                 else
                 {
@@ -104,6 +118,7 @@ namespace WindowsFormsApplication1
                 textBox2.Text = "";
             }
         }
+
         private void desconectar_Click(object sender, EventArgs e)
         {
             //Preparamos el IPEndPoint y nos conectamos al socket
@@ -118,10 +133,18 @@ namespace WindowsFormsApplication1
 
         private void listaConBtn_Click(object sender, EventArgs e)
         {
-            VerConectados TablaUsuarios = new VerConectados();
-            TablaUsuarios.SetIP(this.IP);
-            TablaUsuarios.SetPuerto(this.puerto);
-            TablaUsuarios.ShowDialog();
+            if (registrado)
+            {
+                VerConectados TablaUsuarios = new VerConectados();
+                TablaUsuarios.SetIP(this.IP);
+                TablaUsuarios.SetPuerto(this.puerto);
+                TablaUsuarios.ShowDialog();
+            }
+        }
+
+        private void Principal_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            desconectar_Click(sender, e);
         }
 
 //FUNCIONES COMUNICACIÓN SERVIDOR/CLIENTE
@@ -132,7 +155,6 @@ namespace WindowsFormsApplication1
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP);
             IPEndPoint ipep = new IPEndPoint(direc, puerto);
-
 
             //Creamos el socket 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -156,14 +178,22 @@ namespace WindowsFormsApplication1
 
         private string EnviarYRecibir(string mensaje)
         {
-            // Enviamos al servidor el mensaje
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
+            try
+            {
+                // Enviamos al servidor el mensaje
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
 
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            return Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                //Recibimos la respuesta del servidor
+                byte[] msg2 = new byte[80];
+                server.Receive(msg2);
+                return Encoding.ASCII.GetString(msg2).Split('\0')[0];
+            }
+            catch
+            {
+                MessageBox.Show("No he podido conectar con el servidor");
+                return null;
+            }
         }
 
         private void Desconectar()
@@ -171,7 +201,7 @@ namespace WindowsFormsApplication1
             if (registrado)
             {
                 //Prepara la petición de desconexión
-                string mensaje = "5/" + this.nombre;
+                string mensaje = "5/" + this.user.nombre;
 
                 //Envia la petición de desconexión para ese usuario (para que nos borre de la lista)
                 EnviarYRecibir(mensaje);
@@ -231,11 +261,6 @@ namespace WindowsFormsApplication1
                 cartasel.SizeMode = PictureBoxSizeMode.StretchImage;
                 cont++;
             }
-        }
-
-        private void Principal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            desconectar_Click(sender, e);
         }
     }
 }

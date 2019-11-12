@@ -68,13 +68,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Usuario.cs" />
     <Compile Include="VerConectados.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="VerConectados.Designer.cs">
       <DependentUpon>VerConectados.cs</DependentUpon>
     </Compile>
-    <Compile Include="OperacionesBBDD.cs" />
     <Compile Include="Principal.cs">
       <SubType>Form</SubType>
     </Compile>

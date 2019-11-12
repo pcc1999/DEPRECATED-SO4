@@ -35,19 +35,21 @@
             // tablaUsuarios
             // 
             this.tablaUsuarios.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.tablaUsuarios.Location = new System.Drawing.Point(155, 63);
+            this.tablaUsuarios.ColumnHeadersVisible = false;
+            this.tablaUsuarios.Location = new System.Drawing.Point(30, 50);
             this.tablaUsuarios.Name = "tablaUsuarios";
+            this.tablaUsuarios.RowHeadersVisible = false;
             this.tablaUsuarios.RowTemplate.Height = 28;
-            this.tablaUsuarios.Size = new System.Drawing.Size(240, 400);
+            this.tablaUsuarios.Size = new System.Drawing.Size(400, 400);
             this.tablaUsuarios.TabIndex = 0;
             // 
-            // Form1
+            // VerConectados
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(558, 524);
             this.Controls.Add(this.tablaUsuarios);
-            this.Name = "Form1";
+            this.Name = "VerConectados";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.tablaUsuarios)).EndInit();

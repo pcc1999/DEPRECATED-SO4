@@ -45,13 +45,16 @@ namespace WindowsFormsApplication1
             //Intentamos conectarnos al servidor
             Conectar(ipep);
 
-            List<string> ListaUsuarios = ObtenerLista();
-            tablaUsuarios.RowCount = ListaUsuarios.Count + 1 ;
-            tablaUsuarios.ColumnCount = 1;
-            tablaUsuarios[0,0].Value = "Usuarios";
+            List<Usuario> ListaUsuarios = ObtenerLista();
+            tablaUsuarios.RowCount = ListaUsuarios.Count + 1;
+            tablaUsuarios.ColumnCount = 2;
+            tablaUsuarios[0, 0].Value = "Usuarios";
+            tablaUsuarios[1, 0].Value = "Socket";
+
             for (int i = 0; i < ListaUsuarios.Count; i++)
             {
-                tablaUsuarios[0, i + 1].Value = ListaUsuarios[i];
+                tablaUsuarios[0, i + 1].Value = ListaUsuarios[i].nombre;
+                tablaUsuarios[1, i + 1].Value = ListaUsuarios[i].socket;
             }
         }
 
@@ -100,9 +103,9 @@ namespace WindowsFormsApplication1
 
 //CONSULTAS
 
-        public List<string> ObtenerLista()
+        public List<Usuario> ObtenerLista()
         {
-            List<string> ListaUsuarios = new List<string>();
+            List<Usuario> ListaUsuarios = new List<Usuario>();
             string mensaje = "6/";
 
             //Enviamos nuestra consulta y recibimos del servidor la respuesta
@@ -113,8 +116,11 @@ namespace WindowsFormsApplication1
             int i = 0;
             while (prov[i] != "0")
             {
-                ListaUsuarios.Add(prov[i]);
-                i++;
+                Usuario u = new Usuario();
+                u.nombre = prov[i];
+                u.socket = Convert.ToInt32(prov[i + 1]);
+                ListaUsuarios.Add(u);
+                i = i+2;
             }
             return ListaUsuarios;
         }
