@@ -13,56 +13,40 @@ namespace WindowsFormsApplication1
 {
     public partial class Principal : Form
     {
-        string IP = "192.168.25.141";
+
+//PARAMETROS FORM E INICIALIZACION
+
+        string IP = "192.168.25.144";
         int puerto = 9230;
         Socket server;
         bool registrado;
         int cont = 0;
+        string nombre;
         public Principal()
         {
             InitializeComponent();
         }
-        private void Form1_Load(object sender, EventArgs e)
-        {
 
-        }
+//FUNCIONES DE INTERACCIÓN CON EL FORM
+
         private void button2_Click(object sender, EventArgs e)
         {
             if (!registrado)
             {
-                //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
-                //al que deseamos conectarnos
-                IPAddress direc = IPAddress.Parse(IP);
-                IPEndPoint ipep = new IPEndPoint(direc, puerto);
+                //Preparamos el IPEndPoint y nos conectamos al socket
+                IPEndPoint ipep = PrepararIPEndPoint();
 
-
-                //Creamos el socket 
-                server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-
-                try
-                {
-                    server.Connect(ipep);//Intentamos conectar el socket
-                }
-                catch (SocketException)
-                {
-                    //Si hay excepcion imprimimos error y salimos del programa con return 
-                    MessageBox.Show("No he podido conectar con el servidor");
-                    return;
-                }
+                //Intentamos conectarnos al servidor
+                Conectar(ipep);
 
                 //Preparamos el mensaje que vamos a enviar
+                this.nombre = usuario.Text;
                 string mensaje = "0/" + usuario.Text + "/" + password.Text;
-                // Enviamos al servidor el mensaje
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
 
-                //Recibimos la respuesta del servidor
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                //Enviamos nuestra consulta y recibimos del servidor la respuesta
+                string respuesta = EnviarYRecibir(mensaje);
 
-                if (mensaje == "correcto")
+                if (respuesta == "correcto")
                 {
                     MessageBox.Show("Credenciales correctas");
                     this.BackColor = Color.Green;
@@ -89,73 +73,19 @@ namespace WindowsFormsApplication1
             form.SetPuerto(this.puerto);
             form.ShowDialog();
         }
-        public void Consulta2()
-        {
-            //Preparamos el mensaje que queremos consultar
-            string mensaje = "2/";
-            //Enviamos la consulta al servidor
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-            MessageBox.Show("La experiencia del jugador que ganó la última partida es: " + mensaje + " puntos");
-        }
-        public void Consulta1()
-        {
-            //Preparamos el mensaje que queremos consultar
-            string mensaje = "1/" + textBox1.Text + "/" + textBox2.Text;
-            //Enviamos la consulta al servidor
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-            MessageBox.Show("La primera vez que jugaron fue: " + mensaje);
-        }
-        public void Consulta3()
-        {
-            //Preparamos el mensaje que queremos consultar
-            string mensaje = "3/" + textBox1.Text;
-            //Enviamos la consulta al servidor
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-
-            MessageBox.Show("El jugador " + textBox1.Text + " ha ganado " + mensaje + " partidas");
-        }
+        
         private void enviar_Click(object sender, EventArgs e)
         {
             if (registrado)
             {
-                //Creamos la conexión
-                IPAddress direc = IPAddress.Parse(IP);
-                IPEndPoint ipep = new IPEndPoint(direc, puerto);
+                //Preparamos el IPEndPoint y nos conectamos al socket
+                IPEndPoint ipep = PrepararIPEndPoint();
 
-                //Creamos el socket 
-                server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                //Intentamos conectarnos al servidor
+                Conectar(ipep);
 
-                //Intentamos conectar con el servidor
-                try
-                {
-                    server.Connect(ipep);
-                }
-                catch (SocketException)
-                {
-                    //Mensaje de error en caso de no poder establecer la conexión
-                    MessageBox.Show("No he podido conectar con el servidor");
-                    return;
-                }
+                //Si nos hemos conectado, realizamos la consulta seleccionada
+
                 if (consulta1.Checked)
                 {
                     Consulta1();
@@ -168,13 +98,36 @@ namespace WindowsFormsApplication1
                 {
                     Consulta3();
                 }
+
+                //Vaciamos los textbox
                 textBox1.Text = "";
                 textBox2.Text = "";
             }
         }
         private void desconectar_Click(object sender, EventArgs e)
         {
+            //Preparamos el IPEndPoint y nos conectamos al socket
+            IPEndPoint ipep = PrepararIPEndPoint();
 
+            //Intentamos conectarnos al servidor
+            Conectar(ipep);
+
+            Desconectar();
+            this.BackColor = Color.WhiteSmoke;
+        }
+
+        private void listaConBtn_Click(object sender, EventArgs e)
+        {
+            VerConectados TablaUsuarios = new VerConectados();
+            TablaUsuarios.SetIP(this.IP);
+            TablaUsuarios.SetPuerto(this.puerto);
+            TablaUsuarios.ShowDialog();
+        }
+
+//FUNCIONES COMUNICACIÓN SERVIDOR/CLIENTE
+
+        private IPEndPoint PrepararIPEndPoint()
+        {
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP);
@@ -183,12 +136,15 @@ namespace WindowsFormsApplication1
 
             //Creamos el socket 
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            return ipep;
+        }
 
-
+        private void Conectar(IPEndPoint ipep)
+        {
             try
             {
-                server.Connect(ipep);//Intentamos conectar el socket
-                this.BackColor = Color.WhiteSmoke;
+                //Intentamos conectar al socket
+                server.Connect(ipep);
             }
             catch (SocketException)
             {
@@ -196,19 +152,75 @@ namespace WindowsFormsApplication1
                 MessageBox.Show("No he podido conectar con el servidor");
                 return;
             }
+        }
 
-            // Quiere saber la longitud
-            string mensaje = "5/" + "Desconectar";
-            // Enviamos al servidor el nombre tecleado
+        private string EnviarYRecibir(string mensaje)
+        {
+            // Enviamos al servidor el mensaje
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
 
-            // Se terminó el servicio. 
-            // Nos desconectamos
-            server.Shutdown(SocketShutdown.Both);
-            server.Close();
-            registrado = false;
+            //Recibimos la respuesta del servidor
+            byte[] msg2 = new byte[80];
+            server.Receive(msg2);
+            return Encoding.ASCII.GetString(msg2).Split('\0')[0];
         }
+
+        private void Desconectar()
+        {
+            if (registrado)
+            {
+                //Prepara la petición de desconexión
+                string mensaje = "5/" + this.nombre;
+
+                //Envia la petición de desconexión para ese usuario (para que nos borre de la lista)
+                EnviarYRecibir(mensaje);
+
+                //Se desconecta el cliente
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
+                registrado = false;
+                MessageBox.Show("Desconectado correctamente");
+            }
+        }
+
+//CONSULTAS
+        
+        public void Consulta1()
+        {
+            //Preparamos el mensaje que queremos consultar
+            string mensaje = "1/" + textBox1.Text + "/" + textBox2.Text;
+
+            //Enviamos nuestra consulta y recibimos del servidor la respuesta
+            string respuesta = EnviarYRecibir(mensaje);
+
+            MessageBox.Show("La primera vez que jugaron fue: " + respuesta);
+        }
+        
+        public void Consulta2()
+        {
+            //Preparamos el mensaje que queremos consultar
+            string mensaje = "2/";
+
+            //Enviamos nuestra consulta y recibimos del servidor la respuesta
+            string respuesta = EnviarYRecibir(mensaje);
+
+            MessageBox.Show("La experiencia del jugador que ganó la última partida es: " + respuesta + " puntos");
+        }
+        
+        public void Consulta3()
+        {
+            //Preparamos el mensaje que queremos consultar
+            string mensaje = "3/" + textBox1.Text;
+
+            //Enviamos nuestra consulta y recibimos del servidor la respuesta
+            string respuesta = EnviarYRecibir(mensaje);
+
+            MessageBox.Show("El jugador " + textBox1.Text + " ha ganado " + respuesta + " partidas");
+        }
+
+//INTERFAZ GRÁFICA
+
         private void SeleccionarCarta(object sender, EventArgs e)
         {
             if (registrado)
@@ -219,6 +231,11 @@ namespace WindowsFormsApplication1
                 cartasel.SizeMode = PictureBoxSizeMode.StretchImage;
                 cont++;
             }
+        }
+
+        private void Principal_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            desconectar_Click(sender, e);
         }
     }
 }

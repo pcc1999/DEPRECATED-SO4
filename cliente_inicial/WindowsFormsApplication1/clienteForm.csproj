@@ -68,6 +68,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VerConectados.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VerConectados.Designer.cs">
+      <DependentUpon>VerConectados.cs</DependentUpon>
+    </Compile>
     <Compile Include="OperacionesBBDD.cs" />
     <Compile Include="Principal.cs">
       <SubType>Form</SubType>
@@ -95,6 +101,9 @@
     <Compile Include="Registro.Designer.cs">
       <DependentUpon>Registro.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="VerConectados.resx">
+      <DependentUpon>VerConectados.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Principal.resx">
       <DependentUpon>Principal.cs</DependentUpon>
     </EmbeddedResource>

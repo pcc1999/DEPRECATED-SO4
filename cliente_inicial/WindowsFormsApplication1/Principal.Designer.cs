@@ -49,6 +49,7 @@
             this.carta1 = new System.Windows.Forms.PictureBox();
             this.lanzarbtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.listaConBtn = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.carta4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta3)).BeginInit();
@@ -58,14 +59,14 @@
             // 
             // usuario
             // 
-            this.usuario.Location = new System.Drawing.Point(875, 56);
+            this.usuario.Location = new System.Drawing.Point(874, 55);
             this.usuario.Name = "usuario";
             this.usuario.Size = new System.Drawing.Size(169, 26);
             this.usuario.TabIndex = 1;
             // 
             // password
             // 
-            this.password.Location = new System.Drawing.Point(875, 122);
+            this.password.Location = new System.Drawing.Point(874, 122);
             this.password.Name = "password";
             this.password.Size = new System.Drawing.Size(169, 26);
             this.password.TabIndex = 2;
@@ -73,7 +74,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(871, 33);
+            this.label1.Location = new System.Drawing.Point(872, 32);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 20);
             this.label1.TabIndex = 3;
@@ -82,7 +83,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(871, 99);
+            this.label2.Location = new System.Drawing.Point(872, 98);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(92, 20);
             this.label2.TabIndex = 4;
@@ -90,9 +91,9 @@
             // 
             // enviarbtn
             // 
-            this.enviarbtn.Location = new System.Drawing.Point(901, 167);
+            this.enviarbtn.Location = new System.Drawing.Point(902, 168);
             this.enviarbtn.Name = "enviarbtn";
-            this.enviarbtn.Size = new System.Drawing.Size(119, 37);
+            this.enviarbtn.Size = new System.Drawing.Size(118, 37);
             this.enviarbtn.TabIndex = 5;
             this.enviarbtn.Text = "Iniciar sesión";
             this.enviarbtn.UseVisualStyleBackColor = true;
@@ -100,9 +101,9 @@
             // 
             // resgistrarbtn
             // 
-            this.resgistrarbtn.Location = new System.Drawing.Point(901, 229);
+            this.resgistrarbtn.Location = new System.Drawing.Point(902, 229);
             this.resgistrarbtn.Name = "resgistrarbtn";
-            this.resgistrarbtn.Size = new System.Drawing.Size(119, 37);
+            this.resgistrarbtn.Size = new System.Drawing.Size(118, 37);
             this.resgistrarbtn.TabIndex = 6;
             this.resgistrarbtn.Text = "Registrarse";
             this.resgistrarbtn.UseVisualStyleBackColor = true;
@@ -110,16 +111,16 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(835, 334);
+            this.textBox1.Location = new System.Drawing.Point(836, 334);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(119, 26);
+            this.textBox1.Size = new System.Drawing.Size(120, 26);
             this.textBox1.TabIndex = 7;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(835, 390);
+            this.textBox2.Location = new System.Drawing.Point(836, 389);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(119, 26);
+            this.textBox2.Size = new System.Drawing.Size(120, 26);
             this.textBox2.TabIndex = 8;
             // 
             // label3
@@ -134,7 +135,7 @@
             // consulta1
             // 
             this.consulta1.AutoSize = true;
-            this.consulta1.Location = new System.Drawing.Point(972, 333);
+            this.consulta1.Location = new System.Drawing.Point(972, 332);
             this.consulta1.Name = "consulta1";
             this.consulta1.Size = new System.Drawing.Size(110, 24);
             this.consulta1.TabIndex = 10;
@@ -166,9 +167,9 @@
             // 
             // enviar
             // 
-            this.enviar.Location = new System.Drawing.Point(835, 437);
+            this.enviar.Location = new System.Drawing.Point(836, 437);
             this.enviar.Name = "enviar";
-            this.enviar.Size = new System.Drawing.Size(119, 37);
+            this.enviar.Size = new System.Drawing.Size(118, 37);
             this.enviar.TabIndex = 13;
             this.enviar.Text = "Enviar";
             this.enviar.UseVisualStyleBackColor = true;
@@ -178,7 +179,7 @@
             // 
             this.desconectar.Location = new System.Drawing.Point(963, 482);
             this.desconectar.Name = "desconectar";
-            this.desconectar.Size = new System.Drawing.Size(119, 66);
+            this.desconectar.Size = new System.Drawing.Size(118, 66);
             this.desconectar.TabIndex = 14;
             this.desconectar.Text = "Desconectar";
             this.desconectar.UseVisualStyleBackColor = true;
@@ -194,14 +195,14 @@
             this.panel1.Controls.Add(this.carta1);
             this.panel1.Location = new System.Drawing.Point(12, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(811, 536);
+            this.panel1.Size = new System.Drawing.Size(812, 535);
             this.panel1.TabIndex = 0;
             // 
             // carta4
             // 
             this.carta4.BackgroundImage = global::WindowsFormsApplication1.Properties.Resources._72f58f9446cc33e8ed1bf8ef7316636c;
             this.carta4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.carta4.Location = new System.Drawing.Point(405, 379);
+            this.carta4.Location = new System.Drawing.Point(405, 378);
             this.carta4.Name = "carta4";
             this.carta4.Size = new System.Drawing.Size(90, 132);
             this.carta4.TabIndex = 3;
@@ -223,7 +224,7 @@
             // 
             this.carta2.BackgroundImage = global::WindowsFormsApplication1.Properties.Resources.WhatsApp_Image_2019_10_21_at_17_49_50;
             this.carta2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.carta2.Location = new System.Drawing.Point(405, 21);
+            this.carta2.Location = new System.Drawing.Point(405, 22);
             this.carta2.Name = "carta2";
             this.carta2.Size = new System.Drawing.Size(90, 132);
             this.carta2.TabIndex = 1;
@@ -233,7 +234,7 @@
             // 
             this.carta1.BackgroundImage = global::WindowsFormsApplication1.Properties.Resources.WhatsApp_Image_2019_10_21_at_17_49_50;
             this.carta1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.carta1.Location = new System.Drawing.Point(296, 21);
+            this.carta1.Location = new System.Drawing.Point(296, 22);
             this.carta1.Name = "carta1";
             this.carta1.Size = new System.Drawing.Size(90, 132);
             this.carta1.TabIndex = 0;
@@ -241,21 +242,32 @@
             // 
             // lanzarbtn
             // 
-            this.lanzarbtn.Location = new System.Drawing.Point(279, 556);
+            this.lanzarbtn.Location = new System.Drawing.Point(279, 555);
             this.lanzarbtn.Name = "lanzarbtn";
-            this.lanzarbtn.Size = new System.Drawing.Size(119, 37);
+            this.lanzarbtn.Size = new System.Drawing.Size(118, 37);
             this.lanzarbtn.TabIndex = 15;
             this.lanzarbtn.Text = "Lanzar carta";
             this.lanzarbtn.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(417, 556);
+            this.button1.Location = new System.Drawing.Point(417, 555);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(125, 37);
+            this.button1.Size = new System.Drawing.Size(124, 37);
             this.button1.TabIndex = 16;
             this.button1.Text = "Siguiente turno";
             this.button1.UseVisualStyleBackColor = true;
+            // 
+            // listaConBtn
+            // 
+            this.listaConBtn.Location = new System.Drawing.Point(836, 482);
+            this.listaConBtn.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.listaConBtn.Name = "listaConBtn";
+            this.listaConBtn.Size = new System.Drawing.Size(118, 66);
+            this.listaConBtn.TabIndex = 17;
+            this.listaConBtn.Text = "Ver lista conectados";
+            this.listaConBtn.UseVisualStyleBackColor = true;
+            this.listaConBtn.Click += new System.EventHandler(this.listaConBtn_Click);
             // 
             // Principal
             // 
@@ -263,6 +275,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1095, 605);
+            this.Controls.Add(this.listaConBtn);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.lanzarbtn);
             this.Controls.Add(this.desconectar);
@@ -282,6 +295,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "Principal";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Principal_FormClosing);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.carta4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta3)).EndInit();
@@ -315,5 +329,6 @@
         private System.Windows.Forms.PictureBox carta1;
         private System.Windows.Forms.Button lanzarbtn;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button listaConBtn;
     }
 }

@@ -6,41 +6,68 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <mysql.h>
+#include <pthread.h>
 
-int main(int argc, char *argv[])
+typedef struct{
+	char usuario[20];
+	int socket;
+}TUsuario;
+
+typedef struct{
+	int num;
+	TUsuario usuarios[100];
+}TLista;	
+
+TLista lista;
+
+int AddUsuario(char user[20], int socket)
 {
+	if (lista.num < 100)
+	{
+		strcpy(lista.usuarios[lista.num].usuario, user);
+		lista.usuarios[lista.num].socket = socket;
+		lista.num = lista.num + 1;
+		return 0;
+	}
+	else 
+	{
+		return -1;
+	}
+}
+
+void BorrarUsuario(char nombre[20])
+{
+	int encontrado = 0;
+	int i;
+	for (i = 0; i < lista.num && !encontrado; i++)
+	{
+		if (strcmp(lista.usuarios[i].usuario, nombre) == 0)
+		{
+			encontrado = 1;
+		}
+	}
+	if(encontrado)
+	{
+		for(i; i < lista.num; i++)
+		{
+			lista.usuarios[i]=lista.usuarios[i+1];
+		}
+		lista.num = lista.num - 1;
+	}
+}
+
+void *AtenderCliente(void *socket)
+{
+	int *s;
+	s = (int *) socket;
+	int terminar = 0;
 	int sock_conn, sock_listen, ret;
+	sock_conn = *s;
 	struct sockaddr_in serv_adr;
 	char buff[512];
 	char respuesta[20];
 	char experiencia[64];
 	char consulta2[512];
-	// INICIALITZACIONS
-	// Obrim el socket
-	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	{
-		printf("Error creant socket");
-	}
-	// Fem el bind al port
-	
-	
-	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
-	serv_adr.sin_family = AF_INET;
-	
-	// asocia el socket a cualquiera de las IP de la m?quina. 
-	// htonl formatea el numero que recibe al formato necesario
-	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	// escucharemos en el port 9230
-	serv_adr.sin_port = htons(9230);
-	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
-	{
-		printf ("Error al bind");
-	}
-	//La cola de peticiones pendientes no podr? ser superior a 4
-	if (listen(sock_listen, 2) < 0)
-	{
-		printf("Error en el Listen");
-	}
 	
 	MYSQL *conn;
 	int err;
@@ -48,8 +75,9 @@ int main(int argc, char *argv[])
 	// Estructura especial para almacenar resultados de consultas 
 	MYSQL_RES *resultado;
 	MYSQL_ROW row;
-	//Creamos una conexion al servidor MYSQL 
-	for(;;)
+	
+	//for consultas
+	while(terminar == 0)
 	{
 		conn = mysql_init(NULL);
 		if (conn==NULL)
@@ -67,8 +95,7 @@ int main(int argc, char *argv[])
 		}
 		printf ("Escuchando\n");
 		
-		sock_conn = accept(sock_listen, NULL, NULL);
-		printf ("He recibido conexion\n");
+		
 		//sock_conn es el socket que usaremos para este cliente
 		
 		// Ahora recibimos su nombre, que dejamos en 
@@ -141,6 +168,7 @@ int main(int argc, char *argv[])
 				strcpy(respuesta, "correcto");
 				printf("El usuario %s se ha dado de alta correctamente\n", nuevo);
 			}
+			write (sock_conn, respuesta, strlen(respuesta));
 		}
 		if (consulta == 0)  //Log in
 		{
@@ -176,9 +204,6 @@ int main(int argc, char *argv[])
 			{
 				// Ahora obtenemos la primera fila que se almacena en una
 				// variable de tipo MYSQL_ROW
-				// En una fila hay tantas columnas como datos tiene una
-				// persona. En nuestro caso hay tres columnas: dni(row[0]),
-				// nombre(row[1]) y edad (row[2]).
 				if (strcmp(row[1], nombre) == 0)
 				{	
 					if (strcmp(row[2], password)==0)
@@ -186,6 +211,8 @@ int main(int argc, char *argv[])
 						strcpy(respuesta, "correcto");
 						encontrado = 1;
 						printf("El usuario %s ha iniciado sesion correctamente\n", nombre);
+						//añadir usuario a lista usuarios
+						AddUsuario(nombre, socket);
 					}
 					else if (strcmp(row[2], password)!=0)
 					{
@@ -199,6 +226,7 @@ int main(int argc, char *argv[])
 			{
 				strcpy(respuesta, "no_usuario");
 			}
+			write (sock_conn, respuesta, strlen(respuesta));
 		}
 		if (consulta == 1)  //Consulta 1 del cliente
 		{
@@ -239,10 +267,11 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				// El resultado debe ser una matriz con una sola fila y una columna que contiene el nombre
+				// El resultado debe ser una matriz con una sola fila y una columna que contiene la fecha
 				printf ("Primera fecha en la que dos jugadores han jugado juntos: %s\n", row[0] );
 				strcpy(respuesta, row[0]);
 			}
+			write (sock_conn, respuesta, strlen(respuesta));
 		}
 		if (consulta == 2)  //Consulta 2 del cliente
 		{
@@ -252,7 +281,7 @@ int main(int argc, char *argv[])
 			if (err2!=0) 
 			{
 				printf ("Error al consultar datos de la base %u %s\n",
-				mysql_errno(conn), mysql_error(conn));
+						mysql_errno(conn), mysql_error(conn));
 				exit(1);
 			}
 			else
@@ -270,6 +299,7 @@ int main(int argc, char *argv[])
 					strcpy(respuesta, row[0]);
 				}
 			}
+			write (sock_conn, respuesta, strlen(respuesta));
 		}
 		if (consulta == 3)  //Consulta 3 del cliente
 		{
@@ -302,10 +332,77 @@ int main(int argc, char *argv[])
 				}
 				sprintf(respuesta, "%d", ganadas);
 			}
+			write (sock_conn, respuesta, strlen(respuesta));
 		}
-		write (sock_conn, respuesta, strlen(respuesta));
-		// Y lo enviamos
+		if (consulta == 6)
+		{
+			char listausuarios[2000];
+			int i;
+			for(i = 0; i < lista.num; i++)
+			{
+				strcat(listausuarios, ("%s", lista.usuarios[i].usuario));
+				strcat(listausuarios, "_");
+			}
+			strcat(listausuarios, "0");
+			printf(listausuarios);
+			write (sock_conn, listausuarios, strlen(listausuarios));
+		}
+		if(consulta == 5)
+		{
+			char nombre[20];
+			p = strtok(NULL, "/");
+			sprintf(nombre, p);
+			BorrarUsuario(nombre);
+			terminar = 1;
+		}
+		close(sock_conn);
 	}
-	close(sock_conn);
-	mysql_close(conn);
+	
+	//mysql_close(conn);
+}
+
+int main(int argc, char *argv[])
+{
+	int sock_conn, sock_listen, ret;
+	struct sockaddr_in serv_adr;
+	// INICIALITZACIONS
+	// Obrim el socket
+	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
+		printf("Error creant socket");
+	}
+	// Fem el bind al port
+	
+	
+	memset(&serv_adr, 0, sizeof(serv_adr));// inicialitza a zero serv_addr
+	serv_adr.sin_family = AF_INET;
+	
+	// asocia el socket a cualquiera de las IP de la m?quina. 
+	// htonl formatea el numero que recibe al formato necesario
+	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
+	// escucharemos en el port 9230
+	serv_adr.sin_port = htons(9230);
+	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
+	{
+		printf ("Error al bind");
+	}
+	//La cola de peticiones pendientes no podr? ser superior a 4
+	if (listen(sock_listen, 2) < 0)
+	{
+		printf("Error en el Listen");
+	}
+	
+	int i;
+	pthread_t threads[100];
+	int sockets[100];
+	for(i = 0; i<100; i++)
+	{
+		printf("Escuchando\n");
+		sock_conn = accept(sock_listen, NULL, NULL);
+		printf("He recibido conexion\n");
+		sockets[i] = sock_conn;
+		pthread_create(&threads[i], NULL, AtenderCliente, &sockets[i]);
+	}
+	//Creamos una conexion al servidor MYSQL 
+	
 }
