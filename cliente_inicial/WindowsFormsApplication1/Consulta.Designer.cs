@@ -146,7 +146,6 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox consulta;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button desconectar;
         private System.Windows.Forms.Label label1;

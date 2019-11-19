@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace WindowsFormsApplication1
 {
@@ -16,64 +17,60 @@ namespace WindowsFormsApplication1
 
 //PARAMETROS FORM E INICIALIZACION
 
-        string IP = "192.168.25.144";
-        int puerto = 9020;
+        string IP = "147.83.117.22";
+        int puerto = 50061;
+        bool thread_start;
         Socket server;
         bool registrado;
         int cont = 0;
         public Usuario user = new Usuario();
+        Thread atender;
         public Principal()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false; //Para poder avanzar sin el problema de cross-threading
         }
 
 //FUNCIONES DE INTERACCIÓN CON EL FORM
 
         private void button2_Click(object sender, EventArgs e)
         {
+            ////Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
+            ////al que deseamos conectarnos
+            //IPAddress direc = IPAddress.Parse(IP);
+            //IPEndPoint ipep = new IPEndPoint(direc, puerto);
+
+            ////Creamos el socket 
+            //server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            //try
+            //{
+            //    //Intentamos conectar al socket
+            //    server.Connect(ipep);
+            //}
+            //catch (SocketException)
+            //{
+            //    //Si hay excepcion imprimimos error y salimos del programa con return 
+            //    MessageBox.Show("No he podido conectar con el servidor");
+            //    return;
+            //}
+            if (!thread_start)
+            {
+                ThreadStart ts = delegate { AtenderServidor(); };
+                atender = new Thread(ts);
+                atender.Start();
+                thread_start = true;
+            }
+            
             if (!registrado)
             {
-                //Preparamos el IPEndPoint y nos conectamos al socket
-                IPEndPoint ipep = PrepararIPEndPoint();
-
-                //Intentamos conectarnos al servidor
-                Conectar(ipep);
-
                 //Preparamos el mensaje que vamos a enviar
                 string mensaje = "0/" + usuario.Text + "/" + password.Text;
 
                 //Enviamos nuestra consulta y recibimos del servidor la respuesta
-                string respuesta = EnviarYRecibir(mensaje);
-
-                if (respuesta == "correcto")
-                {
-                    MessageBox.Show("Credenciales correctas");
-                    this.BackColor = Color.Green;
-                    registrado = true;
-                    this.user.nombre = usuario.Text;
-                    mensaje = "7/" + this.user.nombre;
-
-                    //Preparamos el IPEndPoint y nos conectamos al socket
-                    IPEndPoint ipep2 = PrepararIPEndPoint();
-
-                    //Intentamos conectarnos al servidor
-                    Conectar(ipep2);
-
-                    string socket_usuario = EnviarYRecibir(mensaje);
-                    this.user.socket = Convert.ToInt32(socket_usuario);
-                    usuario.Text = "";
-                    password.Text = "";
-                }
-                else if (respuesta == "conectado")
-                {
-                    MessageBox.Show("Ya estás conectado al servidor");
-                }
-                else
-                {
-                    MessageBox.Show("Error al iniciar sesión");
-                    password.Text = "";
-                }
+                Enviar(mensaje);
             }
+
             if (registrado)
             {
                 panel1.Visible = true;
@@ -82,51 +79,46 @@ namespace WindowsFormsApplication1
 
         private void registrarbtn_Click(object sender, EventArgs e)
         {
-            Registro form = new Registro();
-            form.SetIP(this.IP);
-            form.SetPuerto(this.puerto);
-            form.ShowDialog();
+            //Registro form = new Registro();
+            //form.SetIP(this.IP);
+            //form.SetPuerto(this.puerto);
+            //form.ShowDialog();
+
+            string registro = "4/" + usuario.Text + "/" + password.Text;
+            //Lo enviamos
+            Enviar(registro);
+            if (!thread_start)
+            {
+                ThreadStart ts = delegate { AtenderServidor(); };
+                atender = new Thread(ts);
+                atender.Start();
+                thread_start = true;
+            }
         }
         
         private void enviar_Click(object sender, EventArgs e)
         {
             if (registrado)
             {
-                //Preparamos el IPEndPoint y nos conectamos al socket
-                IPEndPoint ipep = PrepararIPEndPoint();
-
-                //Intentamos conectarnos al servidor
-                Conectar(ipep);
-
                 //Si nos hemos conectado, realizamos la consulta seleccionada
 
                 if (consulta1.Checked)
                 {
-                    Consulta1();
+                    Consulta1Envio();
                 }
                 if (consulta2.Checked)
                 {
-                    Consulta2();
+                    Consulta2Envio();
                 }
                 if (consulta3.Checked)
                 {
-                    Consulta3();
+                    Consulta3Envio();
                 }
-
-                //Vaciamos los textbox
-                textBox1.Text = "";
-                textBox2.Text = "";
             }
         }
 
         private void desconectar_Click(object sender, EventArgs e)
         {
-            //Preparamos el IPEndPoint y nos conectamos al socket
-            IPEndPoint ipep = PrepararIPEndPoint();
-
-            //Intentamos conectarnos al servidor
-            Conectar(ipep);
-
             Desconectar();
             this.BackColor = Color.WhiteSmoke;
         }
@@ -144,7 +136,10 @@ namespace WindowsFormsApplication1
 
         private void Principal_FormClosing(object sender, FormClosingEventArgs e)
         {
-            desconectar_Click(sender, e);
+            if (registrado)
+            {
+                desconectar_Click(sender, e);
+            }
         }
 
 //FUNCIONES COMUNICACIÓN SERVIDOR/CLIENTE
@@ -176,23 +171,17 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private string EnviarYRecibir(string mensaje)
+        private void Enviar(string mensaje)
         {
             try
             {
                 // Enviamos al servidor el mensaje
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
-                //Recibimos la respuesta del servidor
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                return Encoding.ASCII.GetString(msg2).Split('\0')[0];
             }
             catch
             {
                 MessageBox.Show("No he podido conectar con el servidor");
-                return null;
             }
         }
 
@@ -202,52 +191,176 @@ namespace WindowsFormsApplication1
             {
                 //Prepara la petición de desconexión
                 string mensaje = "5/" + this.user.nombre;
+                this.registrado = false;
+                listBox1.Items.Clear();
 
                 //Envia la petición de desconexión para ese usuario (para que nos borre de la lista)
-                EnviarYRecibir(mensaje);
-
-                //Se desconecta el cliente
-                server.Shutdown(SocketShutdown.Both);
-                server.Close();
-                registrado = false;
+                Enviar(mensaje);
                 MessageBox.Show("Desconectado correctamente");
             }
         }
 
+        private void AtenderServidor()
+        {
+            while (true)
+            {
+                //Recibimos la respuesta del servidor
+                byte[] msg2 = new byte[80];
+                server.Receive(msg2);
+                string[] trozos = Encoding.ASCII.GetString(msg2).Split('/');
+                int codigo = Convert.ToInt32(trozos[0]);
+                string respuesta = trozos[1].Split('\0')[0];
+
+                switch (codigo)
+                {
+                    case 0: //Iniciar sesión
+                        if (respuesta == "correcto")
+                        {
+                            //if (!registrado)
+                            //{
+                            //    MessageBox.Show("Credenciales correctas");
+                            //    this.BackColor = Color.Green;
+                            //    registrado = true;
+                            //    this.user.nombre = usuario.Text;
+
+                            //    //Enviar(mensaje);
+                            //    usuario.Text = "";
+                            //    password.Text = "";
+                            //}
+                        }
+                        else if (respuesta == "conectado")
+                        {
+                            MessageBox.Show("Ya estás conectado al servidor");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error al iniciar sesión");
+                            password.Text = "";
+                        }
+
+                        break;
+
+                    case 1: //Consulta 1
+
+                        MessageBox.Show("La primera vez que jugaron fue: " + respuesta);
+                        break;
+
+                    case 2: //Consulta 2
+
+
+                        MessageBox.Show("La experiencia del jugador que ganó la última partida es: " + respuesta + " puntos");
+                        break;
+
+                    case 3: //Consulta 3
+
+                        MessageBox.Show("El jugador " + textBox1.Text + " ha ganado " + respuesta + " partidas");
+                        break;
+
+                    case 4: //Darse de alta en la BBDD
+
+                        if (respuesta == "correcto")
+                        {
+                            MessageBox.Show("Te has dado de alta correctamente en la base de datos");
+                        }
+                        else if (respuesta == "ya registrado")
+                        {
+                            MessageBox.Show("Ya hay un usuario con ese nombre de usuario");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Se ha producido un error. Vuelve a intentarlo.");
+                        }
+                        break;
+
+                    case 5: //Desconectar no necesita código porque no recibe nada
+
+                        //Se desconecta el cliente
+                        atender.Abort();
+                        server.Shutdown(SocketShutdown.Both);
+                        server.Close();
+                        registrado = false;
+                        listBox1.Items.Clear();
+                        MessageBox.Show("Desconectado correctamente");
+
+                        break;
+                    case 6: //Lista de Conectados
+
+                        if (!registrado)
+                        {
+                            MessageBox.Show("Credenciales correctas");
+                            this.BackColor = Color.Green;
+                            this.registrado = true;
+                            this.user.nombre = usuario.Text;
+
+                            //Enviar(mensaje);
+                            usuario.Text = "";
+                            password.Text = "";
+                        }
+                        List<Usuario> ListaUsuarios = new List<Usuario>();
+                        //Adaptamos la respuesta a nuestro formato de datos (Lista)
+                        string[] prov = respuesta.Split('_');
+                        int i = 0;
+                        while (i < prov.Length - 1)
+                        {
+                            Usuario u = new Usuario();
+                            u.nombre = prov[i];
+                            u.socket = Convert.ToInt32(prov[i + 1]);
+                            ListaUsuarios.Add(u);
+                            i = i + 2;
+                        }
+
+                        //tablaUsuarios.RowCount = ListaUsuarios.Count + 1;
+                        //tablaUsuarios.ColumnCount = 2;
+                        //tablaUsuarios[0, 0].Value = "Usuarios";
+                        //tablaUsuarios[1, 0].Value = "Socket";
+
+                        listBox1.Items.Clear();
+                        for (int j = 0; j < ListaUsuarios.Count; j++)
+                        {
+                            listBox1.Items.Add(ListaUsuarios[j].nombre + "  " + Convert.ToString(ListaUsuarios[j].socket));
+                        //    tablaUsuarios[0, j + 1].Value = ListaUsuarios[j].nombre;
+                        //    tablaUsuarios[1, j + 1].Value = ListaUsuarios[j].socket;
+                        }
+
+                        break;
+
+                    case 7: //Recibir Socket
+
+                        this.user.socket = Convert.ToInt32(respuesta);
+                        break;
+                }
+            }
+        }
 //CONSULTAS
         
-        public void Consulta1()
+        public void Consulta1Envio()
         {
             //Preparamos el mensaje que queremos consultar
             string mensaje = "1/" + textBox1.Text + "/" + textBox2.Text;
 
             //Enviamos nuestra consulta y recibimos del servidor la respuesta
-            string respuesta = EnviarYRecibir(mensaje);
-
-            MessageBox.Show("La primera vez que jugaron fue: " + respuesta);
+            Enviar(mensaje);
         }
         
-        public void Consulta2()
+        public void Consulta2Envio()
         {
             //Preparamos el mensaje que queremos consultar
             string mensaje = "2/";
 
             //Enviamos nuestra consulta y recibimos del servidor la respuesta
-            string respuesta = EnviarYRecibir(mensaje);
+            Enviar(mensaje);
 
-            MessageBox.Show("La experiencia del jugador que ganó la última partida es: " + respuesta + " puntos");
         }
         
-        public void Consulta3()
+        public void Consulta3Envio()
         {
             //Preparamos el mensaje que queremos consultar
             string mensaje = "3/" + textBox1.Text;
 
             //Enviamos nuestra consulta y recibimos del servidor la respuesta
-            string respuesta = EnviarYRecibir(mensaje);
-
-            MessageBox.Show("El jugador " + textBox1.Text + " ha ganado " + respuesta + " partidas");
+            Enviar(mensaje);
         }
+
 
 //INTERFAZ GRÁFICA
 
@@ -260,6 +373,27 @@ namespace WindowsFormsApplication1
                 cartasel.Image = new Bitmap("WhatsApp Image 2019-10-21 at 17.49.50.jpeg");
                 cartasel.SizeMode = PictureBoxSizeMode.StretchImage;
                 cont++;
+            }
+        }
+
+        private void Principal_Load(object sender, EventArgs e)
+        {
+            IPAddress direc = IPAddress.Parse(IP);
+            IPEndPoint ipep = new IPEndPoint(direc, puerto);
+
+            //Creamos el socket 
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                //Intentamos conectar al socket
+                server.Connect(ipep);
+            }
+            catch (SocketException)
+            {
+                //Si hay excepcion imprimimos error y salimos del programa con return 
+                MessageBox.Show("No he podido conectar con el servidor");
+                return;
             }
         }
     }

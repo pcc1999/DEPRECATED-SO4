@@ -49,12 +49,15 @@
             this.carta1 = new System.Windows.Forms.PictureBox();
             this.lanzarbtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.listaConBtn = new System.Windows.Forms.Button();
+            this.tablaUsuarios = new System.Windows.Forms.DataGridView();
+            this.label4 = new System.Windows.Forms.Label();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.carta4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tablaUsuarios)).BeginInit();
             this.SuspendLayout();
             // 
             // usuario
@@ -74,7 +77,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(872, 32);
+            this.label1.Location = new System.Drawing.Point(870, 32);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(64, 20);
             this.label1.TabIndex = 3;
@@ -111,14 +114,14 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(836, 334);
+            this.textBox1.Location = new System.Drawing.Point(1087, 60);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(120, 26);
             this.textBox1.TabIndex = 7;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(836, 389);
+            this.textBox2.Location = new System.Drawing.Point(1087, 98);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(120, 26);
             this.textBox2.TabIndex = 8;
@@ -126,7 +129,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(831, 308);
+            this.label3.Location = new System.Drawing.Point(1083, 32);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(80, 20);
             this.label3.TabIndex = 9;
@@ -135,7 +138,7 @@
             // consulta1
             // 
             this.consulta1.AutoSize = true;
-            this.consulta1.Location = new System.Drawing.Point(972, 332);
+            this.consulta1.Location = new System.Drawing.Point(1221, 62);
             this.consulta1.Name = "consulta1";
             this.consulta1.Size = new System.Drawing.Size(110, 24);
             this.consulta1.TabIndex = 10;
@@ -146,7 +149,7 @@
             // consulta2
             // 
             this.consulta2.AutoSize = true;
-            this.consulta2.Location = new System.Drawing.Point(972, 362);
+            this.consulta2.Location = new System.Drawing.Point(1221, 92);
             this.consulta2.Name = "consulta2";
             this.consulta2.Size = new System.Drawing.Size(110, 24);
             this.consulta2.TabIndex = 11;
@@ -157,7 +160,7 @@
             // consulta3
             // 
             this.consulta3.AutoSize = true;
-            this.consulta3.Location = new System.Drawing.Point(972, 392);
+            this.consulta3.Location = new System.Drawing.Point(1221, 124);
             this.consulta3.Name = "consulta3";
             this.consulta3.Size = new System.Drawing.Size(110, 24);
             this.consulta3.TabIndex = 12;
@@ -167,7 +170,7 @@
             // 
             // enviar
             // 
-            this.enviar.Location = new System.Drawing.Point(836, 437);
+            this.enviar.Location = new System.Drawing.Point(1158, 168);
             this.enviar.Name = "enviar";
             this.enviar.Size = new System.Drawing.Size(118, 37);
             this.enviar.TabIndex = 13;
@@ -177,9 +180,9 @@
             // 
             // desconectar
             // 
-            this.desconectar.Location = new System.Drawing.Point(963, 482);
+            this.desconectar.Location = new System.Drawing.Point(846, 471);
             this.desconectar.Name = "desconectar";
-            this.desconectar.Size = new System.Drawing.Size(118, 66);
+            this.desconectar.Size = new System.Drawing.Size(118, 67);
             this.desconectar.TabIndex = 14;
             this.desconectar.Text = "Desconectar";
             this.desconectar.UseVisualStyleBackColor = true;
@@ -258,24 +261,44 @@
             this.button1.Text = "Siguiente turno";
             this.button1.UseVisualStyleBackColor = true;
             // 
-            // listaConBtn
+            // tablaUsuarios
             // 
-            this.listaConBtn.Location = new System.Drawing.Point(836, 482);
-            this.listaConBtn.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.listaConBtn.Name = "listaConBtn";
-            this.listaConBtn.Size = new System.Drawing.Size(118, 66);
-            this.listaConBtn.TabIndex = 17;
-            this.listaConBtn.Text = "Ver lista conectados";
-            this.listaConBtn.UseVisualStyleBackColor = true;
-            this.listaConBtn.Click += new System.EventHandler(this.listaConBtn_Click);
+            this.tablaUsuarios.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.tablaUsuarios.Location = new System.Drawing.Point(1013, 506);
+            this.tablaUsuarios.Name = "tablaUsuarios";
+            this.tablaUsuarios.RowTemplate.Height = 28;
+            this.tablaUsuarios.Size = new System.Drawing.Size(318, 279);
+            this.tablaUsuarios.TabIndex = 18;
+            this.tablaUsuarios.Visible = false;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(1009, 303);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(163, 20);
+            this.label4.TabIndex = 19;
+            this.label4.Text = "Usuarios conectados:";
+            // 
+            // listBox1
+            // 
+            this.listBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 25;
+            this.listBox1.Location = new System.Drawing.Point(1013, 338);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(208, 129);
+            this.listBox1.TabIndex = 22;
             // 
             // Principal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1095, 605);
-            this.Controls.Add(this.listaConBtn);
+            this.ClientSize = new System.Drawing.Size(1343, 605);
+            this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.tablaUsuarios);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.lanzarbtn);
             this.Controls.Add(this.desconectar);
@@ -296,11 +319,13 @@
             this.Name = "Principal";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Principal_FormClosing);
+            this.Load += new System.EventHandler(this.Principal_Load);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.carta4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tablaUsuarios)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -329,6 +354,8 @@
         private System.Windows.Forms.PictureBox carta1;
         private System.Windows.Forms.Button lanzarbtn;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button listaConBtn;
+        private System.Windows.Forms.DataGridView tablaUsuarios;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }

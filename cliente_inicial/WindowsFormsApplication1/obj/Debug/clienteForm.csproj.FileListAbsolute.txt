@@ -183,3 +183,16 @@ C:\Users\Pol Casaña\Desktop\cliente_inicial\WindowsFormsApplication1\obj\Debug\
 C:\Users\Pol Casaña\Desktop\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Registro.resources
 C:\Users\Pol Casaña\Desktop\cliente_inicial\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.GenerateResource.Cache
 C:\Users\Pol Casaña\Desktop\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.VerConectados.resources
+C:\Users\Pol Casaña\Desktop\Version1Grupo4\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.VerConectados.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\clienteForm.csprojResolveAssemblyReference.cache
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.VerConectados.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Principal.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Inicio.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Consulta.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Registro.resources
+C:\Users\Pol Casaña\Desktop\V3\cliente_inicial\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.GenerateResource.Cache

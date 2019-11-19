@@ -112,9 +112,9 @@ namespace WindowsFormsApplication1
             string respuesta = EnviarYRecibir(mensaje);
             
             //Adaptamos la respuesta a nuestro formato de datos (Lista)
-            string[] prov = respuesta.Split('_');
+            string[] prov = respuesta.Split('/');
             int i = 0;
-            while (prov[i] != "0")
+            while (i < prov.Length)
             {
                 Usuario u = new Usuario();
                 u.nombre = prov[i];
