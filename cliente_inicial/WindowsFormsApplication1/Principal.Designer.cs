@@ -52,6 +52,11 @@
             this.tablaUsuarios = new System.Windows.Forms.DataGridView();
             this.label4 = new System.Windows.Forms.Label();
             this.listBox1 = new System.Windows.Forms.ListBox();
+            this.invitar = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.mensaje = new System.Windows.Forms.TextBox();
+            this.enviar_mensaje = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.carta4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.carta3)).BeginInit();
@@ -269,7 +274,6 @@
             this.tablaUsuarios.RowTemplate.Height = 28;
             this.tablaUsuarios.Size = new System.Drawing.Size(318, 279);
             this.tablaUsuarios.TabIndex = 18;
-            this.tablaUsuarios.Visible = false;
             // 
             // label4
             // 
@@ -289,13 +293,64 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(208, 129);
             this.listBox1.TabIndex = 22;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            // 
+            // invitar
+            // 
+            this.invitar.Location = new System.Drawing.Point(1243, 376);
+            this.invitar.Name = "invitar";
+            this.invitar.Size = new System.Drawing.Size(75, 35);
+            this.invitar.TabIndex = 23;
+            this.invitar.Text = "Invita";
+            this.invitar.UseVisualStyleBackColor = true;
+            this.invitar.Click += new System.EventHandler(this.invitar_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(13, 636);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(43, 20);
+            this.label5.TabIndex = 24;
+            this.label5.Text = "Chat";
+            // 
+            // listBox2
+            // 
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.ItemHeight = 20;
+            this.listBox2.Location = new System.Drawing.Point(17, 665);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.Size = new System.Drawing.Size(195, 124);
+            this.listBox2.TabIndex = 25;
+            // 
+            // mensaje
+            // 
+            this.mensaje.Location = new System.Drawing.Point(17, 816);
+            this.mensaje.Name = "mensaje";
+            this.mensaje.Size = new System.Drawing.Size(195, 26);
+            this.mensaje.TabIndex = 26;
+            // 
+            // enviar_mensaje
+            // 
+            this.enviar_mensaje.Location = new System.Drawing.Point(238, 752);
+            this.enviar_mensaje.Name = "enviar_mensaje";
+            this.enviar_mensaje.Size = new System.Drawing.Size(92, 37);
+            this.enviar_mensaje.TabIndex = 27;
+            this.enviar_mensaje.Text = "Enviar";
+            this.enviar_mensaje.UseVisualStyleBackColor = true;
+            this.enviar_mensaje.Click += new System.EventHandler(this.enviar_mensaje_Click);
             // 
             // Principal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1343, 605);
+            this.ClientSize = new System.Drawing.Size(1343, 854);
+            this.Controls.Add(this.enviar_mensaje);
+            this.Controls.Add(this.mensaje);
+            this.Controls.Add(this.listBox2);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.invitar);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.tablaUsuarios);
@@ -357,5 +412,10 @@
         private System.Windows.Forms.DataGridView tablaUsuarios;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Button invitar;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.TextBox mensaje;
+        private System.Windows.Forms.Button enviar_mensaje;
     }
 }

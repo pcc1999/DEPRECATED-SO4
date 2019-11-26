@@ -17,8 +17,8 @@ namespace WindowsFormsApplication1
 
 //PARAMETROS FORM E INICIALIZACION
 
-        string IP = "147.83.117.22";
-        int puerto = 50061;
+        string IP = "192.168.25.172";
+        int puerto = 7829;
         bool thread_start;
         Socket server;
         bool registrado;
@@ -35,25 +35,26 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            ////Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
-            ////al que deseamos conectarnos
-            //IPAddress direc = IPAddress.Parse(IP);
-            //IPEndPoint ipep = new IPEndPoint(direc, puerto);
+            //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
+            //al que deseamos conectarnos
+            IPAddress direc = IPAddress.Parse(IP);
+            IPEndPoint ipep = new IPEndPoint(direc, puerto);
 
-            ////Creamos el socket 
-            //server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //Creamos el socket 
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            //try
-            //{
-            //    //Intentamos conectar al socket
-            //    server.Connect(ipep);
-            //}
-            //catch (SocketException)
-            //{
-            //    //Si hay excepcion imprimimos error y salimos del programa con return 
-            //    MessageBox.Show("No he podido conectar con el servidor");
-            //    return;
-            //}
+            try
+            {
+                //Intentamos conectar al socket
+                server.Connect(ipep);
+            }
+            catch (SocketException)
+            {
+                //Si hay excepcion imprimimos error y salimos del programa con return 
+                MessageBox.Show("No he podido conectar con el servidor");
+                return;
+            }
+
             if (!thread_start)
             {
                 ThreadStart ts = delegate { AtenderServidor(); };
@@ -66,7 +67,7 @@ namespace WindowsFormsApplication1
             {
                 //Preparamos el mensaje que vamos a enviar
                 string mensaje = "0/" + usuario.Text + "/" + password.Text;
-
+                this.user.nombre = usuario.Text;
                 //Enviamos nuestra consulta y recibimos del servidor la respuesta
                 Enviar(mensaje);
             }
@@ -79,10 +80,23 @@ namespace WindowsFormsApplication1
 
         private void registrarbtn_Click(object sender, EventArgs e)
         {
-            //Registro form = new Registro();
-            //form.SetIP(this.IP);
-            //form.SetPuerto(this.puerto);
-            //form.ShowDialog();
+            IPAddress direc = IPAddress.Parse(IP);
+            IPEndPoint ipep = new IPEndPoint(direc, puerto);
+
+            //Creamos el socket 
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                //Intentamos conectar al socket
+                server.Connect(ipep);
+            }
+            catch (SocketException)
+            {
+                //Si hay excepcion imprimimos error y salimos del programa con return 
+                MessageBox.Show("No he podido conectar con el servidor");
+                return;
+            }
 
             string registro = "4/" + usuario.Text + "/" + password.Text;
             //Lo enviamos
@@ -121,6 +135,8 @@ namespace WindowsFormsApplication1
         {
             Desconectar();
             this.BackColor = Color.WhiteSmoke;
+            this.registrado = false;
+            thread_start = false;
         }
 
         private void listaConBtn_Click(object sender, EventArgs e)
@@ -140,6 +156,13 @@ namespace WindowsFormsApplication1
             {
                 desconectar_Click(sender, e);
             }
+        }
+
+        private void Principal_Load(object sender, EventArgs e)
+        {
+            //tablaUsuarios.ColumnCount = 2;
+            //tablaUsuarios.Columns[0].HeaderText = "Usuarios";
+            //tablaUsuarios.Columns[1].HeaderText = "Socket";
         }
 
 //FUNCIONES COMUNICACIÓN SERVIDOR/CLIENTE
@@ -191,7 +214,6 @@ namespace WindowsFormsApplication1
             {
                 //Prepara la petición de desconexión
                 string mensaje = "5/" + this.user.nombre;
-                this.registrado = false;
                 listBox1.Items.Clear();
 
                 //Envia la petición de desconexión para ese usuario (para que nos borre de la lista)
@@ -216,17 +238,16 @@ namespace WindowsFormsApplication1
                     case 0: //Iniciar sesión
                         if (respuesta == "correcto")
                         {
-                            //if (!registrado)
-                            //{
-                            //    MessageBox.Show("Credenciales correctas");
-                            //    this.BackColor = Color.Green;
-                            //    registrado = true;
-                            //    this.user.nombre = usuario.Text;
+                            if (!registrado)
+                            {
+                                MessageBox.Show("Credenciales correctas");
+                                this.BackColor = Color.Green;
+                                this.registrado = true;
 
-                            //    //Enviar(mensaje);
-                            //    usuario.Text = "";
-                            //    password.Text = "";
-                            //}
+                                //Enviar(mensaje);
+                                this.usuario.Text = "";
+                                this.password.Text = "";
+                            }
                         }
                         else if (respuesta == "conectado")
                         {
@@ -256,7 +277,7 @@ namespace WindowsFormsApplication1
                         MessageBox.Show("El jugador " + textBox1.Text + " ha ganado " + respuesta + " partidas");
                         break;
 
-                    case 4: //Darse de alta en la BBDD
+                    case 4: //Registro
 
                         if (respuesta == "correcto")
                         {
@@ -278,7 +299,7 @@ namespace WindowsFormsApplication1
                         atender.Abort();
                         server.Shutdown(SocketShutdown.Both);
                         server.Close();
-                        registrado = false;
+                        this.registrado = false;
                         listBox1.Items.Clear();
                         MessageBox.Show("Desconectado correctamente");
 
@@ -287,12 +308,9 @@ namespace WindowsFormsApplication1
 
                         if (!registrado)
                         {
-                            MessageBox.Show("Credenciales correctas");
                             this.BackColor = Color.Green;
-                            this.registrado = true;
                             this.user.nombre = usuario.Text;
 
-                            //Enviar(mensaje);
                             usuario.Text = "";
                             password.Text = "";
                         }
@@ -309,17 +327,12 @@ namespace WindowsFormsApplication1
                             i = i + 2;
                         }
 
-                        //tablaUsuarios.RowCount = ListaUsuarios.Count + 1;
-                        //tablaUsuarios.ColumnCount = 2;
-                        //tablaUsuarios[0, 0].Value = "Usuarios";
-                        //tablaUsuarios[1, 0].Value = "Socket";
-
                         listBox1.Items.Clear();
+                        //tablaUsuarios.Rows.Clear();
                         for (int j = 0; j < ListaUsuarios.Count; j++)
                         {
-                            listBox1.Items.Add(ListaUsuarios[j].nombre + "  " + Convert.ToString(ListaUsuarios[j].socket));
-                        //    tablaUsuarios[0, j + 1].Value = ListaUsuarios[j].nombre;
-                        //    tablaUsuarios[1, j + 1].Value = ListaUsuarios[j].socket;
+                            listBox1.Items.Add(ListaUsuarios[j].nombre);
+                            //tablaUsuarios.Rows.Add(ListaUsuarios[j].nombre, ListaUsuarios[j].socket);
                         }
 
                         break;
@@ -327,6 +340,35 @@ namespace WindowsFormsApplication1
                     case 7: //Recibir Socket
 
                         this.user.socket = Convert.ToInt32(respuesta);
+                        break;
+
+                    case 8: //Invitacion a jugar conmigo
+                        if (MessageBox.Show("¡El usuario " + respuesta + " te está invitando a una partida privada! ¿Aceptas?", "Invitación!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        {
+                            string respuesta2 = "9/" + this.user.nombre + "/" + respuesta + "/si";
+                            Enviar(respuesta2);
+                        }
+                        else if (MessageBox.Show("¡El usuario " + respuesta + " te está invitando a una partida privada! ¿Aceptas?", "Invitación!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                        {
+                            string respuesta2 = "9/" + this.user.nombre + "/" + respuesta + "/no";
+                            Enviar(respuesta2);
+                        }
+                        break;
+                    case 9: //Respuesta a la invitación
+                        string[] confirmacion = respuesta.Split('_');
+                        if (confirmacion[1] == "si")
+                            MessageBox.Show("El usuario " + confirmacion[0] + " ha aceptado la invitacion!");
+                        else if (confirmacion[1] == "no")
+                            MessageBox.Show("El usuario " + confirmacion[0] + " ha rechazado la invitacion!");
+                        break;
+                    case 10: //Mensaje recibido en el chat
+                        string[] mensaje_recibido = respuesta.Split('_');
+                        listBox2.Items.Add(mensaje_recibido[0] + " : " + mensaje_recibido[1]);
+
+                        if (listBox2.Items.Count >= 10) //Establecemos un numero maximo de mensajes que podemos tener en el chat
+                        {
+                            listBox2.Items.RemoveAt(0);
+                        }
                         break;
                 }
             }
@@ -376,25 +418,23 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private void Principal_Load(object sender, EventArgs e)
+        private void invitar_Click(object sender, EventArgs e)
         {
-            IPAddress direc = IPAddress.Parse(IP);
-            IPEndPoint ipep = new IPEndPoint(direc, puerto);
+            string sel = Convert.ToString(listBox1.SelectedIndex);
+            string invitacion = "8/" + this.user.nombre + "/" + sel;
+            MessageBox.Show(invitacion);
+            Enviar(invitacion);
+        }
 
-            //Creamos el socket 
-            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
-            try
-            {
-                //Intentamos conectar al socket
-                server.Connect(ipep);
-            }
-            catch (SocketException)
-            {
-                //Si hay excepcion imprimimos error y salimos del programa con return 
-                MessageBox.Show("No he podido conectar con el servidor");
-                return;
-            }
+        }
+
+        private void enviar_mensaje_Click(object sender, EventArgs e)
+        {
+            string mensajechat = "10/" + this.user.nombre + "/" + mensaje.Text;
+            Enviar(mensajechat);
         }
     }
 }
