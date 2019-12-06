@@ -15,9 +15,9 @@ namespace WindowsFormsApplication1
     public partial class Principal : Form
     {
 
-//PARAMETROS FORM E INICIALIZACION
+        //PARAMETROS FORM E INICIALIZACION
 
-        string IP = "192.168.25.172";
+        string IP = "192.168.25.178";
         int puerto = 7829;
         bool thread_start;
         Socket server;
@@ -25,13 +25,20 @@ namespace WindowsFormsApplication1
         int cont = 0;
         public Usuario user = new Usuario();
         Thread atender;
+        delegate void DelegadoParaEscribir(string mensaje);
+        delegate void RellenarTabla(string mensaje);
+        delegate void DelegadoParaBorrar();
+        delegate void DelegadoCambioColor();
+        delegate void DelegadoParaAñadir(string elemento1);
+        delegate void DelegadoParaTabla(List<Usuario> l);
         public Principal()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false; //Para poder avanzar sin el problema de cross-threading
+            
+            //CheckForIllegalCrossThreadCalls = false; //Para poder avanzar sin el problema de cross-threading
         }
 
-//FUNCIONES DE INTERACCIÓN CON EL FORM
+        //FUNCIONES DE INTERACCIÓN CON EL FORM
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -62,7 +69,7 @@ namespace WindowsFormsApplication1
                 atender.Start();
                 thread_start = true;
             }
-            
+
             if (!registrado)
             {
                 //Preparamos el mensaje que vamos a enviar
@@ -71,7 +78,6 @@ namespace WindowsFormsApplication1
                 //Enviamos nuestra consulta y recibimos del servidor la respuesta
                 Enviar(mensaje);
             }
-
             if (registrado)
             {
                 panel1.Visible = true;
@@ -90,6 +96,13 @@ namespace WindowsFormsApplication1
             {
                 //Intentamos conectar al socket
                 server.Connect(ipep);
+                if (!thread_start)
+                {
+                    ThreadStart ts = delegate { AtenderServidor(); };
+                    atender = new Thread(ts);
+                    atender.Start();
+                    thread_start = true;
+                }
             }
             catch (SocketException)
             {
@@ -101,15 +114,8 @@ namespace WindowsFormsApplication1
             string registro = "4/" + usuario.Text + "/" + password.Text;
             //Lo enviamos
             Enviar(registro);
-            if (!thread_start)
-            {
-                ThreadStart ts = delegate { AtenderServidor(); };
-                atender = new Thread(ts);
-                atender.Start();
-                thread_start = true;
-            }
         }
-        
+
         private void enviar_Click(object sender, EventArgs e)
         {
             if (registrado)
@@ -133,20 +139,12 @@ namespace WindowsFormsApplication1
 
         private void desconectar_Click(object sender, EventArgs e)
         {
-            Desconectar();
-            this.BackColor = Color.WhiteSmoke;
-            this.registrado = false;
-            thread_start = false;
-        }
-
-        private void listaConBtn_Click(object sender, EventArgs e)
-        {
             if (registrado)
             {
-                VerConectados TablaUsuarios = new VerConectados();
-                TablaUsuarios.SetIP(this.IP);
-                TablaUsuarios.SetPuerto(this.puerto);
-                TablaUsuarios.ShowDialog();
+                Desconectar();
+                this.BackColor = Color.WhiteSmoke;
+                this.registrado = false;
+                thread_start = false;
             }
         }
 
@@ -160,12 +158,12 @@ namespace WindowsFormsApplication1
 
         private void Principal_Load(object sender, EventArgs e)
         {
-            //tablaUsuarios.ColumnCount = 2;
-            //tablaUsuarios.Columns[0].HeaderText = "Usuarios";
-            //tablaUsuarios.Columns[1].HeaderText = "Socket";
+            tablaUsuarios.ColumnCount = 2;
+            tablaUsuarios.Columns[0].HeaderText = "Usuarios";
+            tablaUsuarios.Columns[1].HeaderText = "Socket";
         }
 
-//FUNCIONES COMUNICACIÓN SERVIDOR/CLIENTE
+        //FUNCIONES COMUNICACIÓN SERVIDOR/CLIENTE
 
         private IPEndPoint PrepararIPEndPoint()
         {
@@ -221,7 +219,48 @@ namespace WindowsFormsApplication1
                 MessageBox.Show("Desconectado correctamente");
             }
         }
-
+        // cross threading //
+        public void BorraUsuario(string mensaje)
+        {
+            usuario.Text = mensaje;
+        }
+        public void BorraPass(string mensaje)
+        {
+            password.Text = mensaje;
+        }
+        public void Cambiarcolor()
+        {
+            this.BackColor = Color.Green;
+        }
+        public void BorrarTabla1()
+        {
+            listBox1.Items.Clear();
+        }
+        public void BorrarTabla2()
+        {
+            listBox2.Items.Clear();
+        }
+        public void AñadirElementos1(string elemento)
+        {
+            listBox1.Items.Add(elemento);
+        }
+        public void AñadirElementos2(string elemento1)
+        {
+            if (listBox2.Items.Count == 10)
+            {
+                listBox2.Items.RemoveAt(0);
+            }
+            listBox2.Items.Add(elemento1);
+        }
+        public void AñadirATabla(List<Usuario> l)
+        {
+            int i;
+            tablaUsuarios.Rows.Clear();
+            for (i = 0; i < l.Count; i++)
+            {
+                tablaUsuarios.Rows.Add(l[i].nombre, l[i].socket);
+            }
+        }
         private void AtenderServidor()
         {
             while (true)
@@ -240,13 +279,15 @@ namespace WindowsFormsApplication1
                         {
                             if (!registrado)
                             {
+                                DelegadoParaEscribir delegado = new DelegadoParaEscribir(BorraUsuario);
+                                DelegadoParaEscribir delegado1 = new DelegadoParaEscribir(BorraPass);
+                                DelegadoCambioColor delegado2 = new DelegadoCambioColor(Cambiarcolor);
                                 MessageBox.Show("Credenciales correctas");
-                                this.BackColor = Color.Green;
-                                this.registrado = true;
+                                Invoke(delegado2);
+                                registrado = true;
+                                usuario.Invoke(delegado, new object[] { "" });
+                                password.Invoke(delegado1, new object[] { "" });
 
-                                //Enviar(mensaje);
-                                this.usuario.Text = "";
-                                this.password.Text = "";
                             }
                         }
                         else if (respuesta == "conectado")
@@ -256,7 +297,7 @@ namespace WindowsFormsApplication1
                         else
                         {
                             MessageBox.Show("Error al iniciar sesión");
-                            password.Text = "";
+                            
                         }
 
                         break;
@@ -306,14 +347,6 @@ namespace WindowsFormsApplication1
                         break;
                     case 6: //Lista de Conectados
 
-                        if (!registrado)
-                        {
-                            this.BackColor = Color.Green;
-                            this.user.nombre = usuario.Text;
-
-                            usuario.Text = "";
-                            password.Text = "";
-                        }
                         List<Usuario> ListaUsuarios = new List<Usuario>();
                         //Adaptamos la respuesta a nuestro formato de datos (Lista)
                         string[] prov = respuesta.Split('_');
@@ -326,12 +359,16 @@ namespace WindowsFormsApplication1
                             ListaUsuarios.Add(u);
                             i = i + 2;
                         }
-
-                        listBox1.Items.Clear();
+                        DelegadoParaBorrar delegado3 = new DelegadoParaBorrar(BorrarTabla1);
+                        listBox1.Invoke(delegado3);
                         //tablaUsuarios.Rows.Clear();
+                        DelegadoParaAñadir delegado4 = new DelegadoParaAñadir(AñadirElementos1);
+                        DelegadoParaTabla delegado6 = new DelegadoParaTabla(AñadirATabla);
+                        tablaUsuarios.Invoke(delegado6, new object[] { ListaUsuarios });
                         for (int j = 0; j < ListaUsuarios.Count; j++)
                         {
-                            listBox1.Items.Add(ListaUsuarios[j].nombre);
+                            
+                            listBox1.Invoke(delegado4, new object [] {ListaUsuarios[j].nombre});
                             //tablaUsuarios.Rows.Add(ListaUsuarios[j].nombre, ListaUsuarios[j].socket);
                         }
 
@@ -354,6 +391,7 @@ namespace WindowsFormsApplication1
                             Enviar(respuesta2);
                         }
                         break;
+
                     case 9: //Respuesta a la invitación
                         string[] confirmacion = respuesta.Split('_');
                         if (confirmacion[1] == "si")
@@ -361,10 +399,11 @@ namespace WindowsFormsApplication1
                         else if (confirmacion[1] == "no")
                             MessageBox.Show("El usuario " + confirmacion[0] + " ha rechazado la invitacion!");
                         break;
+
                     case 10: //Mensaje recibido en el chat
                         string[] mensaje_recibido = respuesta.Split('_');
-                        listBox2.Items.Add(mensaje_recibido[0] + " : " + mensaje_recibido[1]);
-
+                        DelegadoParaAñadir delegado5 = new DelegadoParaAñadir(AñadirElementos2);
+                        listBox2.Invoke(delegado5, new object[] { (mensaje_recibido[0] + " : " + mensaje_recibido[1]) });
                         if (listBox2.Items.Count >= 10) //Establecemos un numero maximo de mensajes que podemos tener en el chat
                         {
                             listBox2.Items.RemoveAt(0);
@@ -373,8 +412,8 @@ namespace WindowsFormsApplication1
                 }
             }
         }
-//CONSULTAS
-        
+        //CONSULTAS
+
         public void Consulta1Envio()
         {
             //Preparamos el mensaje que queremos consultar
@@ -383,7 +422,7 @@ namespace WindowsFormsApplication1
             //Enviamos nuestra consulta y recibimos del servidor la respuesta
             Enviar(mensaje);
         }
-        
+
         public void Consulta2Envio()
         {
             //Preparamos el mensaje que queremos consultar
@@ -393,7 +432,7 @@ namespace WindowsFormsApplication1
             Enviar(mensaje);
 
         }
-        
+
         public void Consulta3Envio()
         {
             //Preparamos el mensaje que queremos consultar
@@ -404,7 +443,7 @@ namespace WindowsFormsApplication1
         }
 
 
-//INTERFAZ GRÁFICA
+        //INTERFAZ GRÁFICA
 
         private void SeleccionarCarta(object sender, EventArgs e)
         {
@@ -418,23 +457,31 @@ namespace WindowsFormsApplication1
             }
         }
 
+        private void enviar_mensaje_Click(object sender, EventArgs e)
+        {
+            string mensajechat = "10/" + this.user.nombre + "/" + mensaje.Text;
+            Enviar(mensajechat);
+        }
+
         private void invitar_Click(object sender, EventArgs e)
         {
+            IPAddress direc = IPAddress.Parse(IP);
+            IPEndPoint ipep = new IPEndPoint(direc, puerto);
             string sel = Convert.ToString(listBox1.SelectedIndex);
             string invitacion = "8/" + this.user.nombre + "/" + sel;
             MessageBox.Show(invitacion);
             Enviar(invitacion);
         }
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
-        }
 
-        private void enviar_mensaje_Click(object sender, EventArgs e)
-        {
-            string mensajechat = "10/" + this.user.nombre + "/" + mensaje.Text;
-            Enviar(mensajechat);
-        }
+        //FUNCIONES CROSS-THREADING
+
+        //private void RellenarTabla()
+        //{
+
+        //}
+
     }
+
 }
